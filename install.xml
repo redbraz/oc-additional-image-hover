@@ -1,0 +1,95 @@
+<modification>
+	<name>Additional image hover</name>
+	<version>3.0</version>
+	<code>Additional-image-hover</code>
+	<author>REDS</author>
+	<link>https://www.prai.com.br/</link>
+
+    <file path="catalog/controller/product/{category,manufacturer,special,search}*.php">
+			<operation>
+				<search><![CDATA[$data['products'][] = array(]]></search>
+				<add position="before"><![CDATA[
+				$image_results = $this->model_catalog_product->getProductImages($result['product_id']);
+
+				if ($image_results) {
+					$image2 = $this->model_tool_image->resize($image_results[0]['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_product_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_product_height'));
+				} else {
+					$image2 = false;
+				}
+				]]></add>
+			</operation>
+			<operation>
+				<search><![CDATA['thumb'       => $image,]]></search>
+				<add position="after"><![CDATA['thumb2'       => $image2,]]></add>
+			</operation>
+    </file>
+
+    <file path="catalog/controller/extension/module/{bestseller,latest,special}*.php">
+			<operation>
+				<search><![CDATA[$data['products'][] = array(]]></search>
+				<add position="before"><![CDATA[
+				$image_results = $this->model_catalog_product->getProductImages($result['product_id']);
+
+				if ($image_results) {
+					//$image2 = $this->model_tool_image->resize($image_results[0]['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_product_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_product_height'));
+					$image2 = $this->model_tool_image->resize($image_results[0]['image'], $setting['width'], $setting['height']);
+				} else {
+					$image2 = false;
+				}
+				]]></add>
+			</operation>
+			<operation>
+				<search><![CDATA['thumb'       => $image,]]></search>
+				<add position="after"><![CDATA['thumb2'       => $image2,]]></add>
+			</operation>
+    </file>
+		
+    <file path="catalog/controller/extension/module/featured.php">
+			<operation>
+				<search><![CDATA[$data['products'][] = array(]]></search>
+				<add position="before"><![CDATA[
+				$image_results = $this->model_catalog_product->getProductImages($product_info['product_id']);
+
+				if ($image_results) {
+					$image2 = $this->model_tool_image->resize($image_results[0]['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_product_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_product_height'));
+					$image2 = $this->model_tool_image->resize($image_results[0]['image'], $setting['width'], $setting['height']);
+				} else {
+					$image2 = false;
+				}
+				]]></add>
+			</operation>
+			<operation>
+				<search><![CDATA['thumb'       => $image,]]></search>
+				<add position="after"><![CDATA[
+				'thumb2'       => $image2,
+				]]></add>
+			</operation>
+    </file>
+		
+	  <file path="catalog/view/theme/*/template/product/{category,manufacturer,special,search}*.twig|catalog/view/theme/*/template/extension/module/{bestseller,featured,latest,special}*.twig">
+			<operation>
+				<search><![CDATA[<img src="{{ product.thumb }}" alt="{{ product.name }}" title="{{ product.name }}" class="img-responsive" />]]></search>
+				<add position="replace"><![CDATA[
+				<img itemprop="image" src="{{ product.thumb }}" image-hover="{{ product.thumb2 }}" alt="{{ product.name }}" title="{{ product.name }}" onmouseover="productImageHover($(this))" onmouseout="productImageHover($(this))" class="img-responsive" />
+				]]></add>
+			</operation>
+    </file>
+		
+    <file path="catalog/view/theme/*/template/common/footer.twig">
+			<operation>
+				<search><![CDATA[</body>]]></search>
+				<add position="before"><![CDATA[
+				<script>
+				function productImageHover(element) {
+					var src = element.attr('image-hover');
+					var data_aux = element.attr('src');
+					if (element.length > 0 && element.attr('image-hover')) {
+						element.attr('src', src);
+						element.attr('image-hover', data_aux);
+					}
+				}
+				</script>
+				]]></add>
+			</operation>
+    </file>
+</modification>
